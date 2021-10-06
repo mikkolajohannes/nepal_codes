@@ -9,7 +9,7 @@ from wrf import (getvar, to_np, vertcross, CoordPair,get_cartopy, latlon_coords,
 #python wrf_cross_sect.py wrfout_d04_2014-12-19_03:00:00
 
 # Open the NetCDF file
-path = "/home/local/mikkolaj/github/mikkolajohannes/nepal/"
+path = "/home/mikkolaj/codes/nepal/"
 file = path + sys.argv[1]
 ncfile = nc4.Dataset(file)
 
@@ -23,7 +23,7 @@ T = getvar(ncfile,"T")
 
 T=T+300
 
-valley_infile = "valley_ncop_jan21.txt"
+valley_infile = "../valley_ncop_fix.txt"
 valley_x = []
 valley_y = []
 

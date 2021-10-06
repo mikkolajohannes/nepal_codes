@@ -1,3 +1,5 @@
+#Johannes Mikkola, 2020
+
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
@@ -9,7 +11,6 @@ from wrf import (getvar, to_np, vertcross, CoordPair,get_cartopy, latlon_coords,
 
 # Open the NetCDF file
 #path = "./perpend_data/"
-path = "/home/local/mikkolaj/github/mikkolajohannes/nepal/valleys/ncop/jan21/along_theta/"
 #file = "2014-12-17_12:00:00.nc"
 file = sys.argv[1] + ".nc"
 data = path + file
@@ -36,18 +37,14 @@ axes = [ax_T]
 #----------------------------------------------------
 #----------------------------------------------------
 #----------------------------------------------------
-z1, z2 = 0, -2
+z1, z2 = 0, -1
 x1, x2 = 0, -1
+# z1, z2 = 0, -1
+# x1, x2 = 0, -1
 
 #ticks=bounds[1:len(bounds)-1][::2]
-
-
+cmap_T = mpl.colors.ListedColormap(['white','white'])
 bounds_T = range(260,340)
-whitewhite = [] #add "white" color for each theta contour
-for i in bounds_T:
-    whitewhite.append("white")
-#cmap_T = mpl.colors.ListedColormap(['white','white'])
-cmap_T = mpl.colors.ListedColormap(whitewhite)
 norm_T = mpl.colors.BoundaryNorm(bounds_T,cmap_T.N)
 sm_T = plt.cm.ScalarMappable(cmap=cmap_T, norm=norm_T)
 sm_T.set_array([])
@@ -125,6 +122,5 @@ title = time + " (" + nepal_time + ")"
 fig.text(0.5,0.95,title,{"fontsize" : 12},horizontalalignment='center')
 
 #ax_hgt.set_title(time)
-#fname = "/home/local/mikkolaj/github/mikkolajohannes/nepal/valleys/ncop/jun2020/figures/along/" + sys.argv[1].replace(":","_").replace("-","_") + ".pdf"
-fname = "alongtheta_test.pdf"
+fname = path + sys.argv[1].replace(":","_").replace("-","_") + ".pdf"
 plt.savefig(fname,bbox_inches = 'tight')
