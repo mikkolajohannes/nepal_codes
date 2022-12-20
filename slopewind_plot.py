@@ -9,8 +9,8 @@ from wrf import (getvar, to_np, vertcross, CoordPair,get_cartopy, latlon_coords,
 from scipy import interpolate
 
 
-os.system("rm slope_wind.pdf")
-os.system("rm swc_*")
+# os.system("rm slope_wind.pdf")
+# os.system("rm swc_*")
 
 ncfile = nc4.Dataset("/home/mikkolaj/github/mikkolajohannes/nepal/wrfout_d04_2014-12-19_03:00:00")
 LAT = getvar(ncfile, "XLAT")
@@ -32,6 +32,9 @@ deg2distance = earth_radius*np.pi/180
 valleys_x, valleys_y = [], []
 vals = ["west","ncop","mid","east"]
 val_names = ["a) Gaurishankar","b) Khumbu","c) Makalu","d) Kanchanjunga"]
+
+titles = ["(a) Gaurishankar, west slope","(b) Gaurishankar, east slope","(c) Khumbu, west slope","(d) Khumbu, east slope",
+            "(e) Makalu, west slope","(f) Makalu, east slope","(g) Kanchanjunga, west slope","(h) Kanchanjunga, east slope"]
 
 for val in vals:
     valley_x = []
@@ -125,8 +128,9 @@ z_max = 10
 colors = ["blue","red","purple","orange"]
 
 #for zi in range(0,12): #vertical levels
-for zi in range(-1,z_max+1): #vertical levels
-
+#for zi in range(-1,z_max+1): #vertical levels
+for zi in [0]: #vertical levels
+    title_counter = 0
     fig, axes = plt.subplots(4,2,figsize=(24,18))
     for vv in range(0,4): #valleys
 
@@ -154,8 +158,10 @@ for zi in range(-1,z_max+1): #vertical levels
             ax2.plot(range(0,V.shape[2]),slope_wind[1,:],label=str(int(segi)),color=colors[ss])
 
 
-        ax1.set_title(val_names[vv]+", west slope")
-        ax2.set_title(val_names[vv]+", east slope")
+        ax1.set_title(titles[title_counter])
+        title_counter += 1
+        ax2.set_title(titles[title_counter])
+        title_counter += 1
 
         for axi in [ax1,ax2]:
             for i in range(0,5):
@@ -164,15 +170,20 @@ for zi in range(-1,z_max+1): #vertical levels
             axi.plot([0,240],[0,0],'k')
             axi.legend()
             axi.grid()
-            axi.set_xlim(0,240)
-            axi.set_ylim(-10,10)
             axi.set_xticks(xticks)
             axi.set_xticklabels(xlabels_date)
             axi.set_yticks([-10,-7.5,-5,-2.5,0,2.5,5,7.5,10])
             axi.set_yticklabels(["-10","","-5","","0","","5","","10"])
-            axi.set_ylabel("m/s",fontsize=14)
+            axi.set_xlim(24,240)
+            axi.set_ylim(-10,10)
 
+        ax1.set_ylabel("m s$^{-1}$",fontsize=14)
+        ax2.set_ylabel("m s$^{-1}$",fontsize=14)
 
+        if vv==3:
+            props = dict(boxstyle='round', facecolor='white', alpha=.5, linewidth=2)
+            ax1.text(0.5, -0.25, "Positive = up-slope wind\nNegative = down-slope wind", transform=ax1.transAxes, fontsize=18, verticalalignment='top',horizontalalignment="center", bbox=props)
+            ax2.text(1.7, -0.25, "Positive = up-slope wind\nNegative = down-slope wind", transform=ax1.transAxes, fontsize=18, verticalalignment='top',horizontalalignment="center", bbox=props)
 
     if zi==-1:
         figname = "swc_10m.pdf"
@@ -184,13 +195,13 @@ for zi in range(-1,z_max+1): #vertical levels
 #    figname = "pm5_test.pdf"
     plt.savefig(figname,bbox_inches = 'tight',dpi=300)
 
-unit_str = "pdfunite"
-for zi in range(0,z_max+1):
-    if zi < 10:
-        unit_str += " swc_0" + str(zi) + ".pdf"
-    else:
-        unit_str += " swc_" + str(zi) + ".pdf"
-
-unit_str += " slope_wind.pdf"
-
-os.system(unit_str)
+# unit_str = "pdfunite"
+# for zi in range(0,z_max+1):
+#     if zi < 10:
+#         unit_str += " swc_0" + str(zi) + ".pdf"
+#     else:
+#         unit_str += " swc_" + str(zi) + ".pdf"
+#
+# unit_str += " slope_wind.pdf"
+#
+# os.system(unit_str)

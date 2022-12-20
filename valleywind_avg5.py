@@ -31,7 +31,7 @@ deg2distance = earth_radius*np.pi/180
 #0=west, 1=ncop, 2=mid, 3=east
 valleys_x, valleys_y = [], []
 vals = ["west","ncop","mid","east"]
-val_names = ["a) Gaurishankar","b) Khumbu","c) Makalu","d) Kanchanjunga"]
+val_names = ["(a) Gaurishankar","(b) Khumbu","(c) Makalu","(d) Kanchanjunga"]
 
 for val in vals:
     valley_x = []
@@ -91,7 +91,8 @@ z_max = 15
 colors = ["blue","red","purple","orange"]
 
 #for zi in range(0,12): #vertical levels
-for zi in range(0,z_max+1): #vertical levels
+#for zi in range(0,z_max+1): #vertical levels
+for zi in [3]: #vertical levels
 
     fig, axes = plt.subplots(4,1,figsize=(12,18))
     for vv in range(0,4): #valleys
@@ -113,7 +114,7 @@ for zi in range(0,z_max+1): #vertical levels
 
         axi.plot([0,240],[0,0],'k')
         for i in range(0,5):
-            axi.fill_between([i*48+24,(i+1)*48],[20,20],[-20,-20],color="gray",alpha=0.2)
+            axi.fill_between([i*48+24,(i+1)*48],[20,20],[-25,-25],color="gray",alpha=0.2)
 
         axi.set_title(val_names[vv])
 
@@ -152,14 +153,15 @@ for zi in range(0,z_max+1): #vertical levels
 
         axi.legend()
         axi.grid()
-        axi.set_xlim(0,240)
-        axi.set_ylim(-5,11)
         axi.set_xticks(xticks)
         axi.set_xticklabels(xlabels_date)
-        axi.set_yticks([-5,-2.5,0,2.5,5,7.5,10])
-        axi.set_yticklabels(["-5","","0","","5","","10"])
-
-        axi.set_ylabel("m/s",fontsize=14)
+#        axi.set_yticks([-5,-2.5,0,2.5,5,7.5,10])
+        axi.set_yticks([-22.5,-20,-17.5,-15,-12.5,-10,-7.5,-5,-2.5,0,2.5,5,7.5,10])
+#        axi.set_yticklabels(["-5","","0","","5","","10"])
+        axi.set_yticklabels(["","-20","","-15","","-10","","-5","","0","","5","","10"])
+        axi.set_ylabel("m s$^{-1}$",fontsize=14)
+        axi.set_xlim(24,240)
+        axi.set_ylim(-25,12.5)
 
 
 
@@ -169,7 +171,9 @@ for zi in range(0,z_max+1): #vertical levels
         figname = "vwc_" + str(zi) + ".pdf"
 
 #    figname = "pm5_test.pdf"
-    plt.savefig(figname,bbox_inches = 'tight')
+
+#    plt.savefig(figname,bbox_inches = 'tight')
+    plt.savefig("test.pdf",bbox_inches = 'tight')
 
 unit_str = "pdfunite"
 for zi in range(0,z_max+1):

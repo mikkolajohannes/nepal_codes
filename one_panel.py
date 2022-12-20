@@ -9,7 +9,7 @@ import wrf
 
 
 vals = ["west","ncop","mid","east"]
-val_names = ["Gaurishankar","Khumbu","Makalu","Kanchanjunga"]
+val_names = ["(a) Gaurishankar","(b) Khumbu","(c) Makalu","(d) Kanchanjunga"]
 
 segs = np.empty((4,4)) #[valley,seg,t-b] = [west:east,seg_bot:seg_top,bot:top]
 
@@ -20,25 +20,25 @@ segs[3,:] = np.flip((115, 90, 56, 20)) #east
 
 ncfile = nc4.Dataset("/home/mikkolaj/github/mikkolajohannes/nepal/wrfout_d04_2014-12-19_03:00:00")
 hgt = wrf.getvar(ncfile, "HGT")
+LAT = wrf.getvar(ncfile, "XLAT")
+LON = wrf.getvar(ncfile, "XLONG")
 
 colors_crosses = ["blue","red","purple","orange"]
 
 t1 = 3*24*2+6*2 #20th 6UTC -> 12LT
 t2 = 3*24*2+9*2 #20th 9UTC -> 15LT
 t3 = 3*24*2+3*2 #20th 6UTC -> 09LT
-#ts = [t1,t2,t3]
-
-ts = [t2]
+ts = [t1,t2,t3]
+#ts = [t2]
 
 for t in ts:
-    fig, axes = plt.subplots(4,2,figsize=(2*10,4*5))
+    fig, axes = plt.subplots(4,1,figsize=(10,4*5))
 
     for vv in range(0,4):
         val = vals[vv]
         val_name = val_names[vv]
 
-        ax_wind = axes[vv,1]
-        ax_T = axes[vv,0]
+        ax_1 = axes[vv]
 
 
         data = "/home/local/mikkolaj/github/mikkolajohannes/nepal/valleys/2021_analysis/"+val+"/"+val+"_variables.nc"
@@ -69,6 +69,12 @@ for t in ts:
                 parts = line.split() # split line into parts
                 valley_x.append(int(parts[1]))
                 valley_y.append(int(parts[0]))
+
+        valley_lat = wrf.to_np(LAT[valley_y,0])
+        valley_lon = wrf.to_np(LON[0,valley_x])
+
+        # print(valley_lat)
+        # print(valley_lon)
 
         ridges = [[],[]]
 
@@ -121,17 +127,16 @@ for t in ts:
         wind_levels = [-20,-15,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,15,20]
 #        wind_levels = [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10]
 
-        avw_contourf = ax_wind.contourf(y_plot, np.transpose(z[:,:,t]), np.transpose(valley_wind[:,z1:z2,t]),extend="both",
+        avw_contourf = ax_1.contourf(y_plot, np.transpose(z[:,:,t]), np.transpose(valley_wind[:,z1:z2,t]),extend="both",
                                         norm=colors.SymLogNorm(linthresh=5.0, linscale=1.0,
                                               vmin=-15.0, vmax=15.0, base=10),
                                         levels=wind_levels,cmap=get_cmap("RdBu_r"))
-    #    avw_contourf = ax_wind.contourf(y_plot, np.transpose(z[:,:,t]), np.transpose(valley_wind[:,z1:z2,t]),wind_levels,cmap=get_cmap("RdBu_r"))
-        contour_0 = ax_wind.contour(y_plot, np.transpose(z[:,:,t]),np.transpose(valley_wind[:,z1:z2,t]),[-10.0,0.0,10.0],colors=["black","black","black"],alpha=0.3)
-#        contour_15 = ax_wind.contour(y_plot, np.transpose(z[:,:,t]),np.transpose(valley_wind[:,z1:z2,t]),[-15.0,15.0],colors=["black","black"],linestyle=":")
+    #    avw_contourf = ax_1.contourf(y_plot, np.transpose(z[:,:,t]), np.transpose(valley_wind[:,z1:z2,t]),wind_levels,cmap=get_cmap("RdBu_r"))
+        contour_0 = ax_1.contour(y_plot, np.transpose(z[:,:,t]),np.transpose(valley_wind[:,z1:z2,t]),[-10.0,0.0,10.0],colors=["black","black","black"],alpha=0.3)
+#        contour_15 = ax_1.contour(y_plot, np.transpose(z[:,:,t]),np.transpose(valley_wind[:,z1:z2,t]),[-15.0,15.0],colors=["black","black"],linestyle=":")
 
 
-        ax_wind.set_title(val_name,fontsize=16)
-        ax_T.set_title(val_name,fontsize=16)
+        #ax_1.set_title(val_name,fontsize=16)
 
 
 
@@ -139,8 +144,7 @@ for t in ts:
         #theta
         #######################################
 
-        T_contour = ax_T.contour(y_plot, np.transpose(z[:,:,t]), np.transpose(T[:,z1:z2,t]),
-                    np.arange(250,400,1.0),color="black")
+        T_contour = ax_1.contour(y_plot, np.transpose(z[:,:,t]), np.transpose(T[:,z1:z2,t]),np.arange(250,400,1.0),colors="black",alpha=0.6,linewidths=0.8)
 
         fmt = {}
         strs = np.array((T_contour.levels[::5])).astype(int).astype(str)
@@ -148,7 +152,7 @@ for t in ts:
         for l, s in zip(T_contour.levels[::5], strs):
             fmt[l] = s
 
-        ax_T.clabel(T_contour,T_contour.levels[::5],fmt=fmt,inline=1)
+        ax_1.clabel(T_contour,T_contour.levels[::5],fmt=fmt,inline=1)
 
         #######################################
         #crosses
@@ -180,22 +184,32 @@ for t in ts:
             cbar_ax = fig.add_axes([0.92, 0.32, 0.02, 0.35])
             cbar = fig.colorbar(avw_contourf,cax=cbar_ax,ticks=wind_levels,orientation="vertical")
             cbar.ax.set_yticklabels([-20,"",-10,"",-8,"",-6,"",-4,"",-2,"",0,"",2,"",4,"",6,"",8,"",10,"",20],fontsize=16)
-            cbar.ax.set_ylabel("Along-valley wind [m/s]",fontsize=16)
-            cbar.add_lines(contour_0)
+            cbar.ax.set_ylabel("Along-valley wind [m s$^{-1}$]",fontsize=16)
+            #cbar.add_lines(contour_0)
 
-            #cbar = plt.colorbar(avw_contourf, ax=ax_wind, shrink=.33, ticks=wind_levels,orientation="horizontal",anchor=(-1.0,-1.0))
+            #cbar = plt.colorbar(avw_contourf, ax=ax_1, shrink=.33, ticks=wind_levels,orientation="horizontal",anchor=(-1.0,-1.0))
 #            cbar.ax.set_xlabel("25m wind speed [m/s]")
 #            cbar.ax.set_xticklabels([0,"",2,"",4,"",6,"",8,"",10,15,20,25,30])
 
-        for axi in [ax_T,ax_wind]:
-            axi.fill_between(range(0,V.shape[0]),z[:,0,t],color="sienna")
-            axi.plot(range(ddd,bl_height.shape[0]-ddd),bl_height[ddd:-ddd,t],":k",alpha=0.7)
+        ax_1.set_xticks(np.arange(0,V.shape[0]-20+1,20))
+        # xticklabels = []
+        # for yy in range(0,V.shape[0]-20+1,20):
+        #     coord_str = str(valley_lat[yy]) + "N \n" + str(valley_lon[yy]) + "E"
+        #     xticklabels.append(coord_str)
+
+#               ax_1.set_xticklabels(xticklabels,rotation=-20,fontsize=10)
+
+        for axi in [ax_1]:
+            axi.fill_between(range(0,V.shape[0]),z[:,0,t],color="burlywood")
+            #axi.plot(range(ddd,bl_height.shape[0]-ddd),bl_height[ddd:-ddd,t],":k",alpha=0.7)
             axi.set_facecolor("white")
             axi.grid(linestyle=":",alpha=0.3)
             axi.set_ylim(0,5000)
             axi.set_xlim(y_ll,y_ul)
-            axi.set_xticks(np.arange(0,V.shape[0]-30,20))
-            axi.set_ylabel("Height [m]",fontsize=16)
+            #ylabel = val_names[vv] + "\nHeight [m]"
+            ylabel = "Height [m]"
+            axi.set_title(val_name,fontsize=16)
+            axi.set_ylabel(ylabel,fontsize=16)
             c=0
             for jj in range(0,4):
                 axi.scatter(segs[vv,jj],profiles[0][int(segs[vv,jj])]-50,marker="x",s=140,color=colors_crosses[c])
@@ -205,6 +219,9 @@ for t in ts:
             # axi.plot(ridges[1],color="k",linestyle=":")
             axi.plot(ridge_avg,color="k",linestyle="--",alpha=0.7)
 
-#    fname = "cross_sections" + str(t) + ".pdf"
-#    plt.savefig(fname,bbox_inches = 'tight',dpi=300)
-    plt.savefig("test.pdf",bbox_inches = 'tight',dpi=300)
+        if vv==3: ax_1.set_xlabel("Along-valley grid points",fontsize=16)
+
+    fname = "cross_sections_onepanel" + str(t) + ".pdf"
+#    fname = "test_" + str(t) + ".pdf"
+    plt.savefig(fname,bbox_inches = 'tight',dpi=300)
+    #plt.savefig("test.pdf",bbox_inches = 'tight',dpi=300)

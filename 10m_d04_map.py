@@ -19,6 +19,15 @@ ncfile = nc4.Dataset("/home/mikkolaj/github/mikkolajohannes/nepal/wrfout_d04_201
 LAT = getvar(ncfile, "XLAT")
 LON = getvar(ncfile, "XLONG")
 
+# for i in range(LAT.shape[0]):
+#     print(i,to_np(LAT[i,0]))
+#
+# for i in range(LON.shape[1]):
+#     print(i,to_np(LON[0,i]))
+#
+#27.80 86.72
+#y=151 x=108
+
 # Open the NetCDF file
 data = "d04_variables.nc"
 ncfile = nc4.Dataset(data)
@@ -87,33 +96,36 @@ u_norm = to_np(UU_daytime) / np.sqrt(to_np(UU_daytime)**2 + to_np(VV_daytime)**2
 v_norm = to_np(VV_daytime) / np.sqrt(to_np(UU_daytime)**2 + to_np(VV_daytime)**2)
 #---------------------------------------------------PLOT
 
-fig = plt.figure(figsize=(15,12))
+fig = plt.figure(figsize=(10,12))
 # Set the GeoAxes to the projection used by WRF
 
 #times = [1,24,48,72,97]
 #times = [1,24,48,72,97]
 
-titles = ["17 Dec 2014 12-15 LT AVG","18 Dec 2014 12-15 LT AVG","19 Dec 2014 12-15 LT AVG","20 Dec 2014 12-15 LT AVG","21 Dec 2014 12-15 LT AVG"]
+titles = ["17 Dec 2014 12-15 LT AVG","(a) 18 Dec 2014 12-15 LT AVG","(b) 19 Dec 2014 12-15 LT AVG","(c) 20 Dec 2014 12-15 LT AVG","(d) 21 Dec 2014 12-15 LT AVG"]
 axes = []
 
-for i in range(5):
+for i in range(1,5):
 #    axes.append(fig.add_subplot(2,3,i+1,projection=cart_proj))
-    axes.append(fig.add_subplot(2,3,i+1))
+    axes.append(fig.add_subplot(2,2,i))
     ax = axes[-1]
     #--------------------------------------------------------------------------------------
     #--------------------------------------------------------------------------------------
     #--------------------------------------------------------------------------------------
-    levels_h = range(0,9000,1000)
-    contours = plt.contour(range(hgt.shape[1]),range(hgt.shape[0]), hgt, levels_h, linewidths=1,colors="black")
+#    levels_h = range(0,9000,1000)
+#    levels_h = [3000,5000,8000]
+    contour_3000 = plt.contour(range(hgt.shape[1]),range(hgt.shape[0]), hgt, [3000.0], linewidths=1,colors="black")
+    contour_5000 = plt.contour(range(hgt.shape[1]),range(hgt.shape[0]), hgt, [5000.0], linewidths=1,colors="black")
 
 #    windspd_levels = np.arange(0,26,1.0)
 #    windspd_levels = [0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,15,20,25,30]
-    windspd_levels = [0,1,2,3,4,5,6,7,8,9,10,15,20,25,30]
+    windspd_levels = [0,1,2,3,4,5,6,7,8,9,10,15,20,25]
 
     contourf = ax.contourf(range(hgt.shape[1]-1),range(hgt.shape[0]-1), wind_speed[:,:,i],
                             windspd_levels,
-                            norm=colors.PowerNorm(gamma=0.45),
-                            cmap=get_cmap("turbo"))#,
+#                            norm=colors.PowerNorm(gamma=0.9),
+                            norm=colors.PowerNorm(gamma=0.3),
+                            cmap=get_cmap("viridis"),extend="max")#,
 #
 #     #tuulen suunta
     a = 10
@@ -136,12 +148,12 @@ for i in range(5):
     ax.set_title(titles[i])
 
     lat_ticks = [8,62,117,173,229,284]
-    lat_ticklabels = ["26.5","27","27.5","28","28.5","29"]
+    lat_ticklabels = ["26.5$^{\\circ}$N","27$^{\\circ}$N","27.5$^{\\circ}$N","28$^{\\circ}$N","28.5$^{\\circ}$N","29$^{\\circ}$N"]
     ax.set_yticks(lat_ticks)
     ax.set_yticklabels(lat_ticklabels)
 
     lon_ticks = [38,87,136,185,234,283]
-    lon_ticklabels = ["86","86.5","87","87.5","88","88.5"]
+    lon_ticklabels = ["86$^{\\circ}$E","86.5$^{\\circ}$E","87$^{\\circ}$E","87.5$^{\\circ}$E","88$^{\\circ}$E","88.5$^{\\circ}$E"]
     ax.set_xticks(lon_ticks)
     ax.set_xticklabels(lon_ticklabels)
 
@@ -149,9 +161,9 @@ for i in range(5):
 
 
     #plt.title("wind speed at 10 m")
-cbar = plt.colorbar(contourf, ax=axes, shrink=.33, ticks=[0,1,2,3,4,5,6,7,8,9,10,15,20,25,30],orientation="horizontal",anchor=(1.0,4.0))
-cbar.ax.set_xlabel("25m wind speed [m/s]")
-cbar.ax.set_xticklabels([0,"",2,"",4,"",6,"",8,"",10,15,20,25,30])
+cbar = plt.colorbar(contourf, ax=axes, shrink=.5, ticks=[0,1,2,3,4,5,6,7,8,9,10,15,20,25,30],orientation="horizontal",anchor=(0.5,1.7))
+cbar.ax.set_xlabel("25m wind speed [m s$^{-1}$]")
+cbar.ax.set_xticklabels([0,"",2,"",4,"",6,"",8,"",10,15,20,25])
 
-plt.savefig("wind_d04.pdf",bbox_inches = 'tight')
+plt.savefig("fig_05.pdf",bbox_inches = 'tight',dpi=300)
     #plt.savefig("wind_d02.png")
